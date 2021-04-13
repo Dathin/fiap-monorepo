@@ -4,7 +4,7 @@ import tempo, sortear, time
 novo_morador_na_fila_em_ms = 120000
 
 # Valor baseado no RM em milésimo de segundos 
-nova_distribuicao_em_ms = ((55 % 3) + 1) * 200 #60000
+nova_distribuicao_em_ms = ((55 % 3) + 1) * 60000 
 
 # Para fins de testar o algoritmo podemos alterar esse valor entre 1 e 2, representando a estação de entrega auxiliar
 estacoes_de_distribuicao = 1
@@ -16,7 +16,7 @@ moradores_servidos_por_distribuicao = estacoes_de_distribuicao * 3
 hora_inicial = tempo.tempo_em_ms()
 
 # Tempo para a van chegar, são dez minutor para deixar a simulação mais real, mas para testar esse valor pode ser reduzido
-hora_chegada_van = hora_inicial + 200 # 600000;
+hora_chegada_van = hora_inicial + 600000
 
 quantidade_moradores_iniciando_na_fila = sortear.sortear_moradores_iniciando_na_fila()
 
@@ -34,13 +34,15 @@ def todos_moradores_alimentados(fila_de_moradores):
             break
     return todos_moradores_alimentados
 
-def ultimo_alimentado_em(fila_de_moradores):
-    ultimo_alimentado = None
-    for morador in reversed(fila_de_moradores):
-        if morador['saida_fila']:
-            ultimo_alimentado = morador['saida_fila']
-            break
-    return ultimo_alimentado
+def alimentar_moradores(fila_de_moradores, saida_fila, quantidade):
+    quantidade_restante = quantidade
+    for morador in fila_de_moradores:
+        if not morador['alimentado'] and quantidade_restante > 0:
+            morador['alimentado'] = True
+            morador['saida_fila'] = saida_fila
+            quantidade_restante -= 1
+    print('{} moradores alimentados'.format(abs(quantidade_restante - quantidade)))
+
 
 # Valor inicado como false que será atualizado uma quando a distribuição for iniciada
 distribuica_iniciada = False
@@ -53,12 +55,12 @@ fila_de_moradores = []
 for item in range(quantidade_moradores_iniciando_na_fila):
     fila_de_moradores.append({"alimentado": False, "entrada_fila": hora_inicial, "saida_fila": None})
 print('São 20:00h a van chegou')
-print('{} moradores entram na fila'.format(len(fila_de_moradores)))
+print('{} moradores já estão esperando na fila'.format(len(fila_de_moradores)))
 
 while not todos_moradores_alimentados(fila_de_moradores):
     tempo_atual_em_ms = tempo.tempo_em_ms()
     if not distribuica_iniciada and tempo_atual_em_ms > hora_chegada_van:
-        print('Distribuição iniciada')
+        print('São 20:10 a van chegou, papeis foram destribuídos e começamos a preparar a distribuição')
         distribuica_iniciada = True
         ultima_distribuicao = tempo_atual_em_ms
     
@@ -67,7 +69,6 @@ while not todos_moradores_alimentados(fila_de_moradores):
         print('Um morador entrou na fila, totalizando {} moradores'.format(len(fila_de_moradores)))
 
     if ultima_distribuicao and ultima_distribuicao + nova_distribuicao_em_ms < tempo_atual_em_ms:
-        for indice in range(3):
-            print('pedro {}'.format(indice))
+        alimentar_moradores(fila_de_moradores, tempo_atual_em_ms, 3)
 
     time.sleep(1) # Aguardamos um segundo para evitar loops desnecessários
