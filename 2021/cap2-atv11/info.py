@@ -16,5 +16,5 @@ def informar_resultado_da_fila():
     print('------------------------------')
     print('Resultado do algoritmo: ')
     print('{} moradores foram alimentados'.format(tamanho_da_fila_de_moradores()))
-    print('O tempo médio de espera é de {} s'.format(media_permanencia_na_fila() / UM_MINUTO_EM_MS))
+    print('O tempo médio de espera é de {} min'.format(media_permanencia_na_fila() / UM_MINUTO_EM_MS))
     print('------------------------------')
